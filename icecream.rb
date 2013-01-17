@@ -1,6 +1,7 @@
 require 'rest-client'
 require 'addressable/uri'
 require 'json'
+require 'nokogiri'
 require './secret_keys.rb'
 
 class IceCreamFinder
@@ -14,7 +15,8 @@ class IceCreamFinder
     stores = process_nearby_stores
     print_stores(stores)
     choice = user_store_choice(stores)
-    directions(stores, choice)
+    path = directions(stores, choice)
+    print_directions(path)
   end
 
   def user_location
@@ -95,15 +97,19 @@ class IceCreamFinder
         query_values: {
           origin: origin,
           destination: destination,
-          mode: 'walking'
+          mode: 'walking',
           sensor: 'false'
         }
       ).to_s
     response = JSON.parse(RestClient.get(url))
-    nil
+    response
   end
 
   def print_directions(directions)
+    directions['routes'][0]['legs'][0]['steps'].each do |step|
+      puts Nokogiri::HTML(step["html_instructions"]).text
+    end
+    nil
   end
 
 end
