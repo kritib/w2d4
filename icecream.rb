@@ -69,7 +69,7 @@ class IceCreamFinder
   def process_nearby_stores
     local_store_list = nearby_stores
     return puts "There's NOTHING near you" if local_store_list.nil?
-    
+
     shops_by_name = {}
     local_store_list['results'].each do |store|
       one_store = {}
