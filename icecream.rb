@@ -11,7 +11,10 @@ class IceCreamFinder
 
   def run
     location_coordinates
-    print_stores
+    stores = process_nearby_stores
+    print_stores(stores)
+    choice = user_store_choice(stores)
+    directions(stores, choice)
   end
 
   def user_location
@@ -20,12 +23,11 @@ class IceCreamFinder
     gets.chomp
   end
 
-  def print_stores
-    stores = process_nearby_stores
-    stores.each do |store|
-      puts "Name: #{store[:name]}"
-      puts "Rating: #{store[:rating]}"
-      puts "Open: #{store[:open]}"
+  def print_stores(stores)
+    stores.each do |name, info|
+      puts "Name: #{name}"
+      puts "Rating: #{info['rating']}"
+      puts "Open: #{info['open']}"
       puts "-" * 8
     end
     nil
@@ -62,26 +64,46 @@ class IceCreamFinder
 
   def process_nearby_stores
     stores = nearby_stores
-    store_array = []
+    store_hash = {}
     stores['results'].each do |store|
-      store_hash = {}
-      store_hash[:location] = store['geometry']['location']
-      store_hash[:name] = store['name']
-      store_hash[:open] = store['opening_hours']['open_now']
-      store_hash[:rating] = store['rating']
-      store_array << store_hash
+      store_hash[store['name']] = {
+        'location' => store['geometry']['location'],
+        'open' => store['opening_hours']['open_now'],
+        'rating' => store['rating']
+      }
     end
-    store_array
+    store_hash
   end
 
-  def directions
+  def user_store_choice(stores)
+    while true
+      puts "WHAT YOU WANT?"
+      print "> "
+      store_choice = gets.chomp
+      return store_choice if stores.has_key?(store_choice)
+      puts "invalid entry"
+    end
+  end
 
+  def directions(stores, choice)
+    origin = "#{@user_coord["lat"]},#{@user_coord["lng"]}"
+    destination = "#{stores[choice]['location']['lat']},#{stores[choice]['location']['lng']}"
+    url = Addressable::URI.new(
+        scheme: 'https',
+        host: 'maps.googleapis.com',
+        path: 'maps/api/directions/json',
+        query_values: {
+          origin: origin,
+          destination: destination,
+          mode: 'walking'
+          sensor: 'false'
+        }
+      ).to_s
+    response = JSON.parse(RestClient.get(url))
+    nil
+  end
+
+  def print_directions(directions)
   end
 
 end
-
-
-#location_hash = response["results"][0]['geometry']['location']
-#name = response["results"][0]['name']
-#open = response["results"][0]['opening_hours']['open_now']
-#rating = response["results"][0]['rating']
