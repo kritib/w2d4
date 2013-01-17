@@ -1,8 +1,9 @@
 require 'oauth'
-require './secret_keys.rb'
 require 'rest-client'
 require 'addressable/uri'
 require 'json'
+
+require './secret_keys.rb'
 
 class Twitter
 
@@ -14,7 +15,7 @@ class Twitter
     CONSUMER_SECRET,
     :site => "http://twitter.com")
 
-  def get_access_token
+  def access_token
     request_token = CONSUMER.get_request_token
 
     puts "Go to this URL: #{request_token.authorize_url}"
@@ -26,20 +27,32 @@ class Twitter
     nil
   end
 
+  def get_tweet_from_user
+    puts "Update status: "
+    gets.chomp
+  end
+
   def post_tweet
+    tweet = get_tweet_from_user
+    url = Addressable::URI.new(
+        scheme: 'https',
+        host: 'api.twitter.com',
+        path: '1.1/statuses/update.json'
+      ).to_s
+    status = {status: tweet}
+    response = @access_token.post(url, status).body
   end
 
   def user_timeline
     url = Addressable::URI.new(
       scheme: 'https',
-      host: 'api.twitter.com'
-      path: '1.1/statuses/user_timeline.json'
+      host: 'api.twitter.com',
+      path: '1.1/statuses/user_timeline.json',
       query_values: {
           count: '10'
         }
       ).to_s
-    response = JSON.parse(RestClient.get(url))
-    p response
+    response = @access_token.get(url).body
   end
 
   def user_statuses
