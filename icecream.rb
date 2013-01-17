@@ -2,6 +2,7 @@ require 'rest-client'
 require 'addressable/uri'
 require 'json'
 require 'nokogiri'
+
 require './secret_keys.rb'
 
 class IceCreamFinder
@@ -13,6 +14,7 @@ class IceCreamFinder
   def run
     location_coordinates
     stores = process_nearby_stores
+    p stores
     print_stores(stores)
     choice = user_store_choice(stores)
     path = directions(stores, choice)
@@ -65,16 +67,26 @@ class IceCreamFinder
   end
 
   def process_nearby_stores
-    stores = nearby_stores
-    store_hash = {}
-    stores['results'].each do |store|
-      store_hash[store['name']] = {
-        'location' => store['geometry']['location'],
-        'open' => store['opening_hours']['open_now'],
-        'rating' => store['rating']
-      }
+    local_store_list = nearby_stores
+    return puts "There's NOTHING near you" if local_store_list.nil?
+    
+    shops_by_name = {}
+    local_store_list['results'].each do |store|
+      one_store = {}
+      one_store['location'] = store['geometry']['location']
+      if store['opening_hours']
+        one_store['open'] = store['opening_hours']['open_now']
+      else
+        one_store['open'] = 'Not Provided'
+      end
+      if store['rating']
+        one_store['rating'] = store['rating']
+      else
+        one_store['rating'] = 'Not provided'
+      end
+      shops_by_name[store['name']] = one_store
     end
-    store_hash
+    shops_by_name
   end
 
   def user_store_choice(stores)
