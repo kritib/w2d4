@@ -32,7 +32,7 @@ class Twitter
     puts "Successfully twat!" if response.length == 20
   end
 
-  def user_timeline
+  def user_statuses
     url = Addressable::URI.new(
       scheme: 'https',
       host: 'api.twitter.com',
@@ -46,7 +46,18 @@ class Twitter
     nil
   end
 
-  def user_statuses
+  def user_timeline
+    url = Addressable::URI.new(
+      scheme: 'https',
+      host: 'api.twitter.com',
+      path: '1.1/statuses/home_timeline.json',
+      query_values: {
+          count: '10'
+        }
+      ).to_s
+    response = JSON.parse(@access_token.get(url).body)
+    print_timeline(response)
+    nil
   end
 
   def direct_message
