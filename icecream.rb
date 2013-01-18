@@ -5,9 +5,13 @@ require 'nokogiri'
 
 require './secret_keys.rb'
 
+
+#Kriti - overall, i like it. not really sure what comments to make here
+
 class IceCreamFinder
 
   def initialize
+  # Kriti - what is this? do we need to initalize a new key everytime we load this class?
     @google_key = Keys.new.get_google_key
   end
 
