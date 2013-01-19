@@ -18,7 +18,7 @@ class Twitter
 
   def initialize
     @access_token = retrieve_token
-    nil
+    nil #Kriti - whats this nil for?
   end
 
   def post_tweet
@@ -29,7 +29,7 @@ class Twitter
       ).to_s
     status = {status: get_tweet_from_user}
     response = JSON.parse(@access_token.post(url, status).body)
-    puts "Successfully twat!" if response.length == 20
+    puts "Successfully twat!" if response.length == 20 #Kriti - whats this response.length thing?
   end
 
   def user_statuses
@@ -127,7 +127,7 @@ class Twitter
     [user, message]
   end
 
-  def follower?(follower)
+  def follower?(follower) #Kriti - nice...we dint do this check
     url = Addressable::URI.new(
         scheme: 'https',
         host: 'api.twitter.com',
